@@ -1,9 +1,7 @@
-package com.tdc.app.platform.services;
+package com.tdc.app.platform.services.impl;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,9 +15,13 @@ import org.springframework.web.multipart.MultipartFile;
 import com.tdc.app.platform.dto.StaffDetailDto;
 import com.tdc.app.platform.dto.StaffDetailRequest;
 import com.tdc.app.platform.entities.StaffDetail;
+import com.tdc.app.platform.exception.ResourceNotFoundException;
 import com.tdc.app.platform.repos.StaffDetailRepository;
+import com.tdc.app.platform.services.StaffDetailService;
 import com.tdc.app.platform.utility.ImageSaver;
 import com.tdc.app.platform.utility.TDCObjectMapper;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class StaffDetailServiceImpl implements StaffDetailService {
@@ -34,19 +36,6 @@ public class StaffDetailServiceImpl implements StaffDetailService {
 
 	@Autowired
 	private ImageSaver imageSaver;
-	/*
-	 * @Override public List<StaffDetailDto> getAllStaffDetails() { try {
-	 * List<StaffDetailDto> detailBeansList = null; List<StaffDetail> dbDetails =
-	 * staffDetailRepository.findAll(); if (!CollectionUtils.isEmpty(dbDetails)) {
-	 * detailBeansList = dbDetails.stream().map(detail -> {
-	 * 
-	 * return objectMapper.mapEntityToDto(detail, StaffDetailDto.class);
-	 * 
-	 * }).collect(Collectors.toList()); } return detailBeansList; } catch (Exception
-	 * e) {
-	 * 
-	 * e.printStackTrace(); } return null; }
-	 */
 
 	@Override
 	public List<StaffDetailDto> getAllStaffDetails() {
@@ -67,9 +56,16 @@ public class StaffDetailServiceImpl implements StaffDetailService {
 	}
 
 	@Override
-	public StaffDetailDto getStaffDetailById(int staffDetailId) {
-		
-		return objectMapper.mapEntityToDto(staffDetailRepository.findById(staffDetailId).get(), StaffDetailDto.class);
+	public StaffDetailDto getStaffDetailByStaffDetailId(int staffDetailId) {
+
+		return objectMapper.mapEntityToDto(staffDetailRepository.getByStaffDetailId(staffDetailId),
+				StaffDetailDto.class);
+	}
+
+	@Override
+	public StaffDetailDto getStaffDetailByStaffId(int staffId) {
+
+		return objectMapper.mapEntityToDto(staffDetailRepository.getByStaffId(staffId), StaffDetailDto.class);
 	}
 
 	@Override
@@ -93,39 +89,64 @@ public class StaffDetailServiceImpl implements StaffDetailService {
 		return empDetails;
 	}
 
+	@Override
+	public List<StaffDetailDto> getStaffByExperience(int experience) {
+		List<StaffDetailDto> listOfEmployeeDto = new ArrayList<>();
+		List<StaffDetail> dbDetails = staffDetailRepository.findByExperience(experience);
+		if (!CollectionUtils.isEmpty(dbDetails)) {
+			listOfEmployeeDto = dbDetails.stream().map(detail -> {
+
+				return objectMapper.mapEntityToDto(detail, StaffDetailDto.class);
+
+			}).collect(Collectors.toList());
+		}
+		return listOfEmployeeDto;
+	}
+
 	/*
-	 * @Override public List<StaffDetailDto> getStaffDetailsByDate(LocalDate date) {
-	 * try { List<StaffDetail> staffDetails =
-	 * staffDetailRepository.findByDate(date); if
-	 * (CollectionUtils.isEmpty(staffDetails)) { return Collections.emptyList(); }
-	 * return staffDetails.stream().map(detail ->
-	 * objectMapper.mapEntityToDto(detail, StaffDetailDto.class))
-	 * .collect(Collectors.toList()); } catch (Exception ex) {
-	 * LOGGER.error("Error occurred while fetching staff details by date", ex);
-	 * return Collections.emptyList(); } }
+	 * @Override public boolean deleteById(Integer staffId) { try { StaffDetail
+	 * staffDetail = staffDetailRepository.getByStaffId(staffId); if (staffDetail !=
+	 * null) { staffDetailRepository.delete(staffDetail); return true; } else {
+	 * throw new ResourceNotFoundException("Staff Detail", "staffId",
+	 * String.valueOf(staffId)); } } catch (Exception ex) {
+	 * LOGGER.error("Failed to delete staff detail with ID: " + staffId, ex); return
+	 * false; } }
 	 */
 
 	@Override
-	public void deleteStaffDetailsByIds(List<Integer> staffIds) {
+	@Transactional
+	public boolean deleteByStaffDetailId(Integer staffDetailId) {
 		try {
-			staffDetailRepository.deleteByStaffIdIn(staffIds);
-		} catch (Exception ex) {
-			LOGGER.error("Error occurred while deleting staff details by IDs", ex);
-			ex.printStackTrace();
-		}
+			StaffDetail staffDetail = staffDetailRepository.getByStaffDetailId(staffDetailId);
+			if (staffDetail != null) {
+				staffDetailRepository.delete(staffDetail);
+				return true;
+			} else {
+				throw new ResourceNotFoundException("Staff Detail", "staffDetailId", String.valueOf(staffDetailId));
+			}
+		} catch (ResourceNotFoundException ex) {
 
+			LOGGER.error("Staff detail not found with ID: " + staffDetailId);
+			return false;
+		} catch (Exception ex) {
+
+			LOGGER.error("Failed to delete staff detail with ID: " + staffDetailId, ex);
+			return false;
+		}
 	}
 
 	@Override
-	public void deleteStaffDetailById(Integer staffDetId) {
-		try {
-			staffDetailRepository.deleteById(staffDetId);
+	public List<StaffDetailDto> getStaffByCompanyName(String companyName) {
+		List<StaffDetailDto> listOfEmployeeDto = new ArrayList<>();
+		List<StaffDetail> dbDetails = staffDetailRepository.findByCompanyName(companyName);
+		if (!CollectionUtils.isEmpty(dbDetails)) {
+			listOfEmployeeDto = dbDetails.stream().map(detail -> {
 
-		} catch (Exception e) {
-			LOGGER.error("Error occurred while deleting staff details by IDs", e);
-			e.printStackTrace();
+				return objectMapper.mapEntityToDto(detail, StaffDetailDto.class);
+
+			}).collect(Collectors.toList());
 		}
-
+		return listOfEmployeeDto;
 	}
 
 }

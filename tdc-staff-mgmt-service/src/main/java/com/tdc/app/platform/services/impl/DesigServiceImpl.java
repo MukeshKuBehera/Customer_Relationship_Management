@@ -1,4 +1,4 @@
-package com.tdc.app.platform.services;
+package com.tdc.app.platform.services.impl;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +12,7 @@ import com.tdc.app.platform.dto.DesigDto;
 import com.tdc.app.platform.entities.Desig;
 import com.tdc.app.platform.exception.TDCServiceException;
 import com.tdc.app.platform.repos.DesigRepository;
+import com.tdc.app.platform.services.DesigService;
 import com.tdc.app.platform.utility.TDCObjectMapper;
 
 @Service

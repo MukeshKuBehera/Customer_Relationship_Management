@@ -23,4 +23,9 @@ public class StaffDetailResponse extends BaseRequest implements Serializable{
     
     private StaffDetailDto data;
 
+    private List<Integer> deletedStaffIds;
+
+		
+	private List<Integer> notFoundStaffIds;
+
 }
