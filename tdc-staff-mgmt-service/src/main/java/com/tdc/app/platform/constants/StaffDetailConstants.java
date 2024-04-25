@@ -20,4 +20,10 @@ public class StaffDetailConstants {
     public static final String  MESSAGE_417_UPDATE= "Update operation failed. Please try again or contact Dev team";
     public static final String  MESSAGE_417_DELETE= "Delete operation failed. Please try again or contact Dev team";
 
+    public static final String ERROR_CODE_404="404";
+    public static final String ERROR_CODE_404_MSG="Staff Details not found";
+    
+    public static final String ERROR_CODE_500="500";
+    public static final String ERROR_CODE_500_MSG="Internal Server Error";
+
 }

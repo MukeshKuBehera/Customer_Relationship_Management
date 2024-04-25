@@ -53,20 +53,24 @@ public class StaffDetailsResourceController {
 			final StaffDetailDto staffDetResponse = staffDetailService.getStaffDetailByStaffDetailId(staffDetId);
 
 			if (staffDetResponse != null) {
-				sdResponseDto.setStatusCode("200");
+				sdResponseDto.setStatusCode(StaffDetailConstants.STATUS_200);
 				sdResponseDto.setData(staffDetResponse);
-				sdResponseDto.setStatusMessage("Staff Detail value retrieved");
+				sdResponseDto.setStatusMessage(StaffDetailConstants.MESSAGE_200);
 				LOGGER.info("Staff Detail data pulled successfully");
+			}else {
+				sdResponseDto.setStatusCode(StaffDetailConstants.ERROR_CODE_404);
+				sdResponseDto.setStatusMessage(StaffDetailConstants.ERROR_CODE_404_MSG);
+				LOGGER.info("Staff Detail data not found");
 			}
 
-		} catch (Exception ex) {
-			sdResponseDto.setStatusCode("404");
+		} catch (TDCServiceException ex) {
+			sdResponseDto.setStatusCode(StaffDetailConstants.ERROR_CODE_500);
 			ErrorMessage error = new ErrorMessage();
-			error.setErrorCode("404");
-			error.setErrorMessage("Not able to fetch designation");
+			error.setErrorCode(StaffDetailConstants.ERROR_CODE_500);
+			error.setErrorMessage(StaffDetailConstants.ERROR_CODE_500_MSG);
 			sdResponseDto.setError(error);
-			LOGGER.error("Staff detail list not found ", ex);
-			ex.printStackTrace();
+			LOGGER.error("Error occurred while fetching staff details", ex);
+			//ex.printStackTrace();
 		}
 		return sdResponseDto;
 	}
@@ -87,20 +91,21 @@ public class StaffDetailsResourceController {
 			final List<StaffDetailDto> staffDetailDto = staffDetailService.getAllStaffDetails();
 
 			if (staffDetailDto != null && !staffDetailDto.isEmpty()) {
-				staffDetailResponse.setStatusCode("200");
+				staffDetailResponse.setStatusCode(StaffDetailConstants.STATUS_200);
 				staffDetailResponse.setDataList(staffDetailDto);
-				staffDetailResponse.setStatusMessage("Staff details value retrieved");
+				staffDetailResponse.setStatusMessage(StaffDetailConstants.MESSAGE_200);
 				LOGGER.info("Staff details data pulled successfully");
 			} else {
-				staffDetailResponse.setStatusCode("404");
-				staffDetailResponse.setStatusMessage("No staff details found");
+				staffDetailResponse.setStatusCode(StaffDetailConstants.ERROR_CODE_404);
+				staffDetailResponse.setStatusMessage(StaffDetailConstants.ERROR_CODE_404_MSG);
+				LOGGER.info("Staff Detail data not found");
 			}
 		} catch (TDCServiceException ex) {
-			staffDetailResponse.setStatusCode("500");
+			staffDetailResponse.setStatusCode(StaffDetailConstants.ERROR_CODE_500);
 			staffDetailResponse.setStatusMessage("Error occurred while fetching staff details");
 			ErrorMessage error = new ErrorMessage();
-			error.setErrorCode("500");
-			error.setErrorMessage("Internal server error");
+			error.setErrorCode(StaffDetailConstants.ERROR_CODE_500);
+			error.setErrorMessage(StaffDetailConstants.ERROR_CODE_500_MSG);
 			staffDetailResponse.setError(error);
 			LOGGER.error("Error occurred while fetching staff details", ex);
 		}
@@ -127,17 +132,18 @@ public class StaffDetailsResourceController {
 		try {
 			final StaffDetailDto staffDetailDto = staffDetailService.saveUpdateStaffDetails(detailRequest, document,
 					degreeCertificate);
-			staffDetailResponse.setStatusCode("201");
+			staffDetailResponse.setStatusCode(StaffDetailConstants.STATUS_201);
 			staffDetailResponse.setData(staffDetailDto);
-			staffDetailResponse.setStatusMessage("Staff details value retrieved");
+			staffDetailResponse.setStatusMessage(StaffDetailConstants.MESSAGE_201);
 
+			LOGGER.info("StaffDetail saved sucessfully");
 		} catch (TDCServiceException ex) {
-			staffDetailResponse.setStatusCode("500");
+			staffDetailResponse.setStatusCode(StaffDetailConstants.ERROR_CODE_500);
 			staffDetailResponse.setStatusMessage("Error occurred while inserting staff details");
 
 			ErrorMessage error = new ErrorMessage();
-			error.setErrorCode("500");
-			error.setErrorMessage("Not able to save");
+			error.setErrorCode(StaffDetailConstants.ERROR_CODE_500);
+			error.setErrorMessage(StaffDetailConstants.ERROR_CODE_500_MSG);
 			staffDetailResponse.setError(error);
 			LOGGER.error("StaffDetail not saved {}", ex);
 		}
@@ -167,24 +173,22 @@ public class StaffDetailsResourceController {
 		try {
 			List<StaffDetailDto> staffDetResponse = staffDetailService.getStaffByExperience(experience);
 			if (staffDetResponse != null && !staffDetResponse.isEmpty()) {
-				staffDetailResponse.setStatusCode("200");
+				staffDetailResponse.setStatusCode(StaffDetailConstants.STATUS_200);
 				staffDetailResponse.setDataList(staffDetResponse);
-				staffDetailResponse.setStatusMessage("Staff Detail value retrieved");
+				staffDetailResponse.setStatusMessage(StaffDetailConstants.SUCCESS_MSG);
 				LOGGER.info("Staff Detail data pulled successfully");
 			} else {
-				staffDetailResponse.setStatusCode("404");
-				ErrorMessage error = new ErrorMessage();
-				error.setErrorCode("404");
-				error.setErrorMessage("For " + experience + " experience we dont have any employee");
-				staffDetailResponse.setError(error);
+				staffDetailResponse.setStatusCode(StaffDetailConstants.ERROR_CODE_404);
+				staffDetailResponse.setStatusMessage(StaffDetailConstants.ERROR_CODE_404_MSG);
+				LOGGER.info("StaffDetails data not found");
 			}
 
 		} catch (TDCServiceException ex) {
-			staffDetailResponse.setStatusCode("500");
+			staffDetailResponse.setStatusCode(StaffDetailConstants.ERROR_CODE_500);
 			staffDetailResponse.setStatusMessage("Error occurred while fetching staff details");
 			ErrorMessage error = new ErrorMessage();
-			error.setErrorCode("500");
-			error.setErrorMessage("Internal server error");
+			error.setErrorCode(StaffDetailConstants.ERROR_CODE_500);
+			error.setErrorMessage(StaffDetailConstants.ERROR_CODE_500_MSG);
 			staffDetailResponse.setError(error);
 			LOGGER.error("Error occurred while fetching staff details", ex);
 		}
@@ -196,7 +200,7 @@ public class StaffDetailsResourceController {
 	 * 
 	 * @return -> staffDetails
 	 * @Parrams -> string value
-	 * @Throws -> exception
+	 * @Throws -> TDCServiceException
 	 *
 	 */
 
@@ -214,19 +218,17 @@ public class StaffDetailsResourceController {
 				staffDetailResponse.setStatusMessage("Staff Detail value retrieved");
 				LOGGER.info("Staff Detail data pulled successfully");
 			} else {
-				staffDetailResponse.setStatusCode("404");
-				ErrorMessage error = new ErrorMessage();
-				error.setErrorCode("404");
-				error.setErrorMessage("For " + companyName + " employee doest not exist");
-				staffDetailResponse.setError(error);
+				staffDetailResponse.setStatusCode(StaffDetailConstants.ERROR_CODE_404);
+				staffDetailResponse.setStatusMessage(StaffDetailConstants.ERROR_CODE_404_MSG);
+				LOGGER.info("Staff Detail data not found");
 			}
 
 		} catch (TDCServiceException ex) {
-			staffDetailResponse.setStatusCode("500");
+			staffDetailResponse.setStatusCode(StaffDetailConstants.ERROR_CODE_500);
 			staffDetailResponse.setStatusMessage("Error occurred while fetching staff details");
 			ErrorMessage error = new ErrorMessage();
-			error.setErrorCode("500");
-			error.setErrorMessage("Internal server error");
+			error.setErrorCode(StaffDetailConstants.ERROR_CODE_500);
+			error.setErrorMessage(StaffDetailConstants.ERROR_CODE_500_MSG);
 			staffDetailResponse.setError(error);
 			LOGGER.error("Error occurred while fetching staff details", ex);
 		}
@@ -241,7 +243,7 @@ public class StaffDetailsResourceController {
 	 * @throws TDCServiceException will thrown if anything went wrong
 	 */
 
-	@DeleteMapping("/details/{staffDetailId}")
+	@DeleteMapping("/detail/{staffDetailId}")
 	@Operation(summary = "Delete staff details by staffDetailId", description = "Deletes staff details entities from the data source by their IDs")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "successful operation"),
 			@ApiResponse(responseCode = "404", description = "some staff details not found") })
@@ -253,21 +255,22 @@ public class StaffDetailsResourceController {
 			boolean isDeletedStaffId = staffDetailService.deleteByStaffDetailId(id);
 			System.out.println("Staff ID Deleted: " + isDeletedStaffId);
 			if (isDeletedStaffId) {
-				staffDetailResponse.setStatusCode("200");
-				staffDetailResponse.setStatusMessage(StaffDetailConstants.DELETE_SUCCESS_MSG);
+				staffDetailResponse.setStatusCode(StaffDetailConstants.STATUS_200);
+				staffDetailResponse.setStatusMessage(StaffDetailConstants.MESSAGE_200);
 				LOGGER.info("Staff details deleted successfully");
 			} else {
 
-				staffDetailResponse.setStatusCode("200");
-				staffDetailResponse.setStatusMessage("Staff Detail Id does not exist");
+				staffDetailResponse.setStatusCode(StaffDetailConstants.ERROR_CODE_404);
+				staffDetailResponse.setStatusMessage(StaffDetailConstants.ERROR_CODE_404_MSG);
+				LOGGER.info("Staff details id does not exist");
 			}
 
 		} catch (TDCServiceException ex) {
-			staffDetailResponse.setStatusCode("500");
+			staffDetailResponse.setStatusCode(StaffDetailConstants.ERROR_CODE_500);
 			staffDetailResponse.setStatusMessage("Error occurred while deleting staff details");
 			ErrorMessage error = new ErrorMessage();
-			error.setErrorCode("500");
-			error.setErrorMessage("Internal server error");
+			error.setErrorCode(StaffDetailConstants.ERROR_CODE_500);
+			error.setErrorMessage(StaffDetailConstants.ERROR_CODE_500_MSG);
 			staffDetailResponse.setError(error);
 			LOGGER.error("Error occurred while deleting staff details", ex);
 		}

@@ -15,7 +15,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.tdc.app.platform.dto.StaffDetailDto;
 import com.tdc.app.platform.dto.StaffDetailRequest;
 import com.tdc.app.platform.entities.StaffDetail;
-import com.tdc.app.platform.exception.ResourceNotFoundException;
 import com.tdc.app.platform.repos.StaffDetailRepository;
 import com.tdc.app.platform.services.StaffDetailService;
 import com.tdc.app.platform.utility.ImageSaver;
@@ -120,15 +119,13 @@ public class StaffDetailServiceImpl implements StaffDetailService {
 			StaffDetail staffDetail = staffDetailRepository.getByStaffDetailId(staffDetailId);
 			if (staffDetail != null) {
 				staffDetailRepository.delete(staffDetail);
+				LOGGER.info("StaffDetails with Id "+staffDetailId+" deleted successfully");
 				return true;
 			} else {
-				throw new ResourceNotFoundException("Staff Detail", "staffDetailId", String.valueOf(staffDetailId));
+				LOGGER.info("StaffDetails with Id "+staffDetailId+" does not exist");
+				return false;
 			}
-		} catch (ResourceNotFoundException ex) {
-
-			LOGGER.error("Staff detail not found with ID: " + staffDetailId);
-			return false;
-		} catch (Exception ex) {
+		}catch (Exception ex) {
 
 			LOGGER.error("Failed to delete staff detail with ID: " + staffDetailId, ex);
 			return false;

@@ -1,6 +1,5 @@
 package com.tdc.app.platform.services.impl;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -14,10 +13,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import com.tdc.app.platform.dto.StaffDetailDto;
 import com.tdc.app.platform.dto.StaffRequest;
 import com.tdc.app.platform.entities.Staff;
-import com.tdc.app.platform.exception.ResourceNotFoundException;
 import com.tdc.app.platform.exception.TDCServiceException;
 import com.tdc.app.platform.repos.StaffRepository;
 import com.tdc.app.platform.services.StaffService;
@@ -87,8 +84,9 @@ public class StaffServiceImpl implements StaffService {
 
 	@Override
 	public List<StaffRequest> findAllStaffsOfADesig(int desigId) {
+		List<StaffRequest> staffBeansList = null;
 		try {
-			List<StaffRequest> staffBeansList = null;
+			
 			List<Staff> dbStaffs = staffRepository.findAllStaffsOfADesig(desigId);
 			if (!CollectionUtils.isEmpty(dbStaffs)) {
 				staffBeansList = dbStaffs.stream().map(staff -> {
@@ -97,11 +95,10 @@ public class StaffServiceImpl implements StaffService {
 
 				}).collect(Collectors.toList());
 			}
-			return staffBeansList;
 		} catch (Exception e) {
 			LOGGER.error("Exception occured while retrieving record: {}", e);
 		}
-		return null;
+		return staffBeansList;
 	}
 
 	/**
@@ -114,7 +111,7 @@ public class StaffServiceImpl implements StaffService {
 	public List<StaffRequest> getStaffByPhoneNumber(String phoneNumber) {
 
 		Staff staffDetail = staffRepository.findByPhone(phoneNumber)
-				.orElseThrow(() -> new ResourceNotFoundException("Staff Details", "StaffId", phoneNumber));
+				.orElseThrow(() -> new TDCServiceException("Staff Details",phoneNumber));
 		System.out.println("StaffDetails:" + staffDetail.getStaffId());
 		List<Staff> staff = new ArrayList<>();
 		staff.add(staffDetail);
@@ -154,14 +151,14 @@ public class StaffServiceImpl implements StaffService {
 	}
 
 	@Override
-	public List<StaffRequest> getStaffByGmail(String email) throws ResourceNotFoundException {
+	public List<StaffRequest> getStaffByGmail(String email){
 		List<Staff> staff = staffRepository.findByEmail(email.toUpperCase());
+		List<StaffRequest> staffRequests=null;
 		if (!staff.isEmpty()) {
-			List<StaffRequest> staffRequests = convertObjectIntoDto(staff);
-			return staffRequests;
-		} else {
-			throw new ResourceNotFoundException("Email", "email", email);
+			staffRequests = convertObjectIntoDto(staff);
+		
 		}
+		return staffRequests;
 	}
 
 	public List<StaffRequest> convertObjectIntoDto(List<Staff> staffDetail) {
