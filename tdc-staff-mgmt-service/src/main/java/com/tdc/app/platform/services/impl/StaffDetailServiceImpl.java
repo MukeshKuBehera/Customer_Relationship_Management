@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.management.RuntimeErrorException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.tdc.app.platform.dto.StaffDetailDto;
 import com.tdc.app.platform.dto.StaffDetailRequest;
 import com.tdc.app.platform.entities.StaffDetail;
+import com.tdc.app.platform.exception.TDCServiceException;
 import com.tdc.app.platform.repos.StaffDetailRepository;
 import com.tdc.app.platform.services.StaffDetailService;
 import com.tdc.app.platform.utility.ImageSaver;
@@ -57,14 +60,26 @@ public class StaffDetailServiceImpl implements StaffDetailService {
 	@Override
 	public StaffDetailDto getStaffDetailByStaffDetailId(int staffDetailId) {
 
-		return objectMapper.mapEntityToDto(staffDetailRepository.getByStaffDetailId(staffDetailId),
-				StaffDetailDto.class);
+		StaffDetail staffDetail = staffDetailRepository.getByStaffDetailId(staffDetailId);
+
+		if (staffDetail == null) {
+			return null;
+		} else {
+			return objectMapper.mapEntityToDto(staffDetail, StaffDetailDto.class);
+		}
+
 	}
 
 	@Override
 	public StaffDetailDto getStaffDetailByStaffId(int staffId) {
 
-		return objectMapper.mapEntityToDto(staffDetailRepository.getByStaffId(staffId), StaffDetailDto.class);
+		StaffDetail staffDetail = staffDetailRepository.getByStaffId(staffId);
+
+		if (staffDetail == null) {
+			return null;
+		} else {
+			return objectMapper.mapEntityToDto(staffDetail, StaffDetailDto.class);
+		}
 	}
 
 	@Override
@@ -119,13 +134,13 @@ public class StaffDetailServiceImpl implements StaffDetailService {
 			StaffDetail staffDetail = staffDetailRepository.getByStaffDetailId(staffDetailId);
 			if (staffDetail != null) {
 				staffDetailRepository.delete(staffDetail);
-				LOGGER.info("StaffDetails with Id "+staffDetailId+" deleted successfully");
+				LOGGER.info("StaffDetails with Id " + staffDetailId + " deleted successfully");
 				return true;
 			} else {
-				LOGGER.info("StaffDetails with Id "+staffDetailId+" does not exist");
+				LOGGER.info("StaffDetails with Id " + staffDetailId + " does not exist");
 				return false;
 			}
-		}catch (Exception ex) {
+		} catch (Exception ex) {
 
 			LOGGER.error("Failed to delete staff detail with ID: " + staffDetailId, ex);
 			return false;

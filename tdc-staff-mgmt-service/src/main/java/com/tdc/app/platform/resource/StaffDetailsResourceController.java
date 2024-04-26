@@ -57,7 +57,7 @@ public class StaffDetailsResourceController {
 				sdResponseDto.setData(staffDetResponse);
 				sdResponseDto.setStatusMessage(StaffDetailConstants.MESSAGE_200);
 				LOGGER.info("Staff Detail data pulled successfully");
-			}else {
+			} else {
 				sdResponseDto.setStatusCode(StaffDetailConstants.ERROR_CODE_404);
 				sdResponseDto.setStatusMessage(StaffDetailConstants.ERROR_CODE_404_MSG);
 				LOGGER.info("Staff Detail data not found");
@@ -70,7 +70,7 @@ public class StaffDetailsResourceController {
 			error.setErrorMessage(StaffDetailConstants.ERROR_CODE_500_MSG);
 			sdResponseDto.setError(error);
 			LOGGER.error("Error occurred while fetching staff details", ex);
-			//ex.printStackTrace();
+			// ex.printStackTrace();
 		}
 		return sdResponseDto;
 	}
